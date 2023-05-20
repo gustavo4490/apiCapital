@@ -28,7 +28,7 @@ class auth extends conexion{
             if($datos){
                 //verificar si la contraseña es igual
                     if($password == $datos[0]['password']){
-                            if($datos[0]['estado'] == "Activo"){
+                            if($datos[0]['estado'] == 1){
                                 //crear el token
                                 $verificar  = $this->insertarToken($datos[0]['idUsuario']);
                                 if($verificar){
@@ -65,8 +65,7 @@ class auth extends conexion{
  * @return array
  */
     private function obtenerDatosUsuario($usuario){
-        // $query = "SELECT UsuarioId,Password,Estado FROM usuarios WHERE Usuario = '$correo'";
-        $query = "SELECT idUsuario,usuario,correo,password,estado  FROM usuarios WHERE usuario = '$usuario'";
+        $query = "SELECT idUsuario,correo,password,estado  FROM usuarios WHERE correo =  '$usuario'";
         $datos = parent::obtenerDatos($query);
         if(isset($datos[0]["idUsuario"])){
             return $datos;
@@ -86,7 +85,7 @@ class auth extends conexion{
         $token = bin2hex(openssl_random_pseudo_bytes(16,$val));
         $date = date("Y-m-d H:i");
         $estado = "Activo";
-        $query = "INSERT INTO usuariostoken (idUsuario,token,estado,fecha)VALUES('$usuarioid','$token','$estado','$date')";
+        $query = "INSERT INTO usariostoken (idUsuario,token,estado,fecha)VALUES('$usuarioid','$token','$estado','$date')";
         $verifica = parent::nonQuery($query);
         if($verifica){
             return $token;
