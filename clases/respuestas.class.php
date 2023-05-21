@@ -40,11 +40,11 @@ class respuestas{
  * @access public
  * @return array
  */
-    public function error_400(){
+    public function error_400($valor = "Datos enviados incompletos o con formato incorrecto"){
         $this->response['status'] = "error";
         $this->response['result'] = array(
             "error_id" => "400",
-            "error_msg" => "Datos enviados incompletos o con formato incorrecto"
+            "error_msg" => $valor
         );
         return $this->response;
     }

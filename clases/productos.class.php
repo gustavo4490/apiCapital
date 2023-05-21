@@ -60,46 +60,57 @@ class productos extends conexion {
      * @access public
      * @return array
      */
-    public function post($json){
+   public function post($json){
         $_respuestas = new respuestas;
-        $datos = json_decode($json,true);
-        
-        if(!isset($datos['token'])){
-                return $_respuestas->error_401();
-        }else{
-            $this->token = $datos['token'];
-            $arrayToken =   $this->buscarToken();
-            if($arrayToken){
-
-                if(!isset($datos['nombre']) || !isset($datos['apellido']) || !isset($datos['correo'])|| !isset($datos['password'])|| !isset($datos['estado'])|| !isset($datos['idRol']) ){
-                    return $_respuestas->error_400();
-                }else{
-                    
-                    $this->nombre = $datos['nombre'];
-                    $this->apellido = $datos['apellido'];
-                    $this->correo = $datos['correo'];
-                    $this->password = $this->encriptar( $datos['password']);
-                    $this->estado = $datos['estado'];
-                    $this->idRol = $datos['idRol'];
-
-                    $resp = $this->insertarUsuarios();
-                    if($resp){
-                        $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Datos almacenados correctamente');
-                        return $respuesta;
-                    }else{
-                        return $_respuestas->error_500();
-                    }
-                }
-
-            }else{
-                return $_respuestas->error_401("El Token que envio es invalido o ha caducado");
+        $datos = json_decode($json, true);
+    
+        if ($datos === null) {
+            return $_respuestas->error_400("JSON inválido");
+        }
+    
+        $requiredFields = array('nombre', 'apellido', 'correo', 'password', 'estado', 'idRol');
+        foreach ($requiredFields as $field) {
+            if (!isset($datos[$field])) {
+                return $_respuestas->error_400("El campo '$field' es obligatorio");
             }
         }
-
-
-       
-
+    
+        $this->nombre = $datos['nombre'];
+        $this->apellido = $datos['apellido'];
+        $this->correo = $datos['correo'];
+        $this->password = $this->encriptar($datos['password']);
+        $this->estado = $datos['estado'];
+        $this->idRol = $datos['idRol'];
+    
+        if (!is_string($this->nombre) || !is_string($this->apellido) || !is_string($this->correo) || !is_string($this->password)) {
+            return $_respuestas->error_400("Los campos nombre, apellido, correo y password deben ser de tipo string");
+        }
+    
+        if (!is_int($this->estado) || !is_int($this->idRol)) {
+            return $_respuestas->error_400("Los campos estado y idRol deben ser de tipo entero");
+        }
+    
+        $resp = $this->insertarUsuarios();
+        if ($resp) {
+            $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Datos almacenados correctamente');
+            return $respuesta;
+        } else {
+            return $_respuestas->error_500();
+        }
     }
+
+
+     /**
+     * Esta función inserta los nuevos usuarios .
+     * @var nombre
+     * @var apellido
+     * @var correo
+     * @var password
+     * @var estado
+     * @var idRol
+     * @access private
+     * @return boolen
+     */
 
     private function insertarUsuarios(){
 
