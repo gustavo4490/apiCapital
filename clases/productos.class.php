@@ -63,33 +63,33 @@ class productos extends conexion {
    public function post($json){
         $_respuestas = new respuestas;
         $datos = json_decode($json, true);
-    
+
         if ($datos === null) {
             return $_respuestas->error_400("JSON inválido");
         }
-    
+
         $requiredFields = array('nombre', 'apellido', 'correo', 'password', 'estado', 'idRol');
         foreach ($requiredFields as $field) {
             if (!isset($datos[$field])) {
                 return $_respuestas->error_400("El campo '$field' es obligatorio");
             }
         }
-    
+
         $this->nombre = $datos['nombre'];
         $this->apellido = $datos['apellido'];
         $this->correo = $datos['correo'];
         $this->password = $this->encriptar($datos['password']);
         $this->estado = $datos['estado'];
         $this->idRol = $datos['idRol'];
-    
+
         if (!is_string($this->nombre) || !is_string($this->apellido) || !is_string($this->correo) || !is_string($this->password)) {
             return $_respuestas->error_400("Los campos nombre, apellido, correo y password deben ser de tipo string");
         }
-    
+
         if (!is_int($this->estado) || !is_int($this->idRol)) {
             return $_respuestas->error_400("Los campos estado y idRol deben ser de tipo entero");
         }
-    
+
         $resp = $this->insertarUsuarios();
         if ($resp) {
             $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Datos almacenados correctamente');
