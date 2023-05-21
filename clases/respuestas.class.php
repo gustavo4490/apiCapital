@@ -92,6 +92,19 @@ public function ok_200($valor = "Tu solicitud se ha realizado correctamente."){
     );
     return $this->response;
 }
+/**
+ * Funcion que indica que la solicitud se ha realizado correctamente.
+ * @access public
+ * @return array
+ */
+public function ok_200_procedimientos_almacenados($valor){
+    $this->response['status'] = "Ok";
+    $this->response['result'] = array(
+        "ok_id" => "ok_200",
+        "ok_msg" => $valor
+    );
+    return $this->response;
+}
     
     
 

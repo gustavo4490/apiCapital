@@ -90,6 +90,49 @@ class conexion {
              return 0;
          }
     }
+/**
+ * Funcion para guardar datos usando procedimientos almacenados, devuelve si se ejecuto correctamente.
+ * @var query 
+ * @access public
+ * @return boolea
+ */
+    
+    public function executeStoredProcedure($procedureName, $params){
+
+        $placeholders = implode(',', array_fill(0, count($params), '?'));
+
+        $sql = "CALL $procedureName($placeholders)";
+        $stmt = $this->conexion->prepare($sql);
+
+        if ($stmt === false) {
+            // Manejar el error en la preparación del statement
+            return false;
+        }
+
+        $types = '';
+        $bindParams = [];
+
+        foreach ($params as $param) {
+            $types .= $param['type'];
+            $bindParams[] = &$param['value'];
+        }
+
+        array_unshift($bindParams, $types);
+
+        if (!call_user_func_array([$stmt, 'bind_param'], $bindParams)) {
+            // Manejar el error en la vinculación de los parámetros
+            return false;
+        }
+
+        if (!$stmt->execute()) {
+            // Manejar el error en la ejecución del procedimiento
+            return false;
+        }
+
+        $stmt->close();
+
+    return true;
+}
      
  /**
  * Funcion para encriptar un string

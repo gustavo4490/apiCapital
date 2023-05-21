@@ -5,44 +5,47 @@ require_once "respuestas.class.php";
 
 class productos extends conexion {
 
-    private $table = "productos";
-    private $idProducto = "";
-    private $nombreProducto = "";
-    private $marcaProducto = "";
-    private $precioProducto = "";
-    private $existenciaProducto = "";
+    private $table = "usuarios";
+    private $idUsuario = "";
+    private $nombre = "";
+    private $apellido = "";
+    private $correo = "";
+    private $password = "";
+    private $estado = "";
+    private $idRol = "";
     private $token = "";
+    
    
     
 
-//a4751ee43df940eab20dac9eeb8f7318
+//ac6213b5fe79354a8fea6611a3284b5e
 
     /**
-     * Esta función devuelve listado de productos, espera el numero de pagina ya que solo trae 100 registros
+     * Esta función devuelve listado de usuarios, espera el numero de pagina ya que solo trae 100 registros
      * @var pagina int
      * @access public
      * @return array
      */
-    public function listaProductos($pagina = 1){
+    public function listaUsuarios($pagina = 1){
         $inicio  = 0 ;
         $cantidad = 100;
         if($pagina > 1){
             $inicio = ($cantidad * ($pagina - 1)) +1 ;
             $cantidad = $cantidad * $pagina;
         }
-        $query = "SELECT idProducto,NombreProducto,marca,precio,existecia FROM " . $this->table . " limit $inicio,$cantidad";
+        $query = "SELECT idUsuario,nombre,apellido,correo,estado,idRol FROM " . $this->table . " limit $inicio,$cantidad";
         $datos = parent::obtenerDatos($query);
         return ($datos);
     }
 
     /**
-     * Esta función devuelve la informacion de un producto, espera el Id 
-     * @var idProducto int
+     * Esta función devuelve la informacion de un usuario, espera el Id 
+     * @var idUsuario int
      * @access public
      * @return array
      */
-    public function obtenerProducto($id){
-        $query = "SELECT * FROM " . $this->table . " WHERE idProducto = '$id'";
+    public function obtenerUsuario($id){
+        $query = "SELECT idUsuario,nombre,apellido,correo,estado,idRol FROM " . $this->table . " WHERE idUsuario = '$id'";
         return parent::obtenerDatos($query);
 
     }
@@ -68,21 +71,20 @@ class productos extends conexion {
             $arrayToken =   $this->buscarToken();
             if($arrayToken){
 
-                if(!isset($datos['nombre']) || !isset($datos['marca']) || !isset($datos['precio'])|| !isset($datos['existencia'])){
+                if(!isset($datos['nombre']) || !isset($datos['apellido']) || !isset($datos['correo'])|| !isset($datos['password'])|| !isset($datos['estado'])|| !isset($datos['idRol']) ){
                     return $_respuestas->error_400();
                 }else{
                     
-                    $this->nombreProducto = $datos['nombre'];
-                    $this->marcaProducto = $datos['marca'];
-                    $this->precioProducto = $datos['precio'];
-                    $this->existenciaProducto = $datos['existencia'];
+                    $this->nombre = $datos['nombre'];
+                    $this->apellido = $datos['apellido'];
+                    $this->correo = $datos['correo'];
+                    $this->password = $this->encriptar( $datos['password']);
+                    $this->estado = $datos['estado'];
+                    $this->idRol = $datos['idRol'];
 
-                    $resp = $this->insertarProductos();
+                    $resp = $this->insertarUsuarios();
                     if($resp){
-                        $respuesta = $_respuestas->response;
-                        $respuesta["result"] = array(
-                            "idProducto" => $resp
-                        );
+                        $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Datos almacenados correctamente');
                         return $respuesta;
                     }else{
                         return $_respuestas->error_500();
@@ -99,23 +101,27 @@ class productos extends conexion {
 
     }
 
+    private function insertarUsuarios(){
 
-    /**
-     * Esta función ejecuta query que inserta registros a la tabla productos
-     * @access private
-     * @return array
-     */
-    private function insertarProductos(){
-        $query = "INSERT INTO " . $this->table . " (nombreProducto,marca,precio,existecia)
-        values
-        ('" . $this->nombreProducto . "','" . $this->marcaProducto . "','" . $this->precioProducto ."','" . $this->existenciaProducto . "')"; 
-        $resp = parent::nonQueryId($query);
-        if($resp){
-             return $resp;
-        }else{
-            return 0;
+        $params = array(
+            //s= string , i = int
+            array('type' => 's', 'value' => $this->nombre),
+            array('type' => 's', 'value' => $this->apellido),
+            array('type' => 's', 'value' => $this->correo),
+            array('type' => 's', 'value' => $this->password),
+            array('type' => 'i', 'value' => $this->estado),
+            array('type' => 'i', 'value' => $this->idRol)
+        );
+        $result = $this->executeStoredProcedure('insertarUsuarios', $params);
+        if ($result) {
+            // echo 'El procedimiento se ejecutó correctamente.';
+            return true;
+        } else {
+            // echo 'Ocurrió un error al ejecutar el procedimiento.';
+            return false;
         }
     }
+    
     
      /**
      * Esta función actualizar productos por medio de ID.
@@ -253,8 +259,9 @@ class productos extends conexion {
      * @return array
      */
     private function buscarToken(){
-        
-        $query = "SELECT  idToken,idUsuario,Estado from usuariostoken WHERE Token = '" . $this->token . "' AND Estado = 'Activo';";
+        // SELECT idToken,idUsuario,estado from usariostoken WHERE Token = 'ac6213b5fe79354a8fea6611a3284b5e' AND estado = 'Activo';
+
+        $query = "SELECT idToken,idUsuario,estado from usariostoken WHERE Token = '" . $this->token . "' AND estado = 'Activo';";
         $resp = parent::obtenerDatos($query);
         if($resp){
             return $resp;
@@ -264,19 +271,7 @@ class productos extends conexion {
     }
 
 
-    private function actualizarToken($tokenid){
-        $date = date("Y-m-d H:i");
-        $query = "UPDATE usuariostoken SET fecha = '$date' WHERE idToken = '$tokenid' ";
-        $resp = parent::nonQuery($query);
-        if($resp >= 1){
-            return $resp;
-        }else{
-            return 0;
-        }
-    }
-
-
-
+   
 }
 
 
