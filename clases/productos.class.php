@@ -135,12 +135,13 @@ class productos extends conexion {
     
     
      /**
-     * Esta función actualizar productos por medio de ID.
-     * @var idProducto
+     * Esta función actualiza usuarios por medio de ID.
      * @var nombre
-     * @var marca
-     * @var precio
-     * @var existencia
+     * @var apellido
+     * @var correo
+     * @var password
+     * @var estado
+     * @var idUsuario
      * @var token
      * @access public
      * @return array
@@ -148,34 +149,30 @@ class productos extends conexion {
     public function put($json){
         $_respuestas = new respuestas;
         $datos = json_decode($json,true);
-
         if(!isset($datos['token'])){
             return $_respuestas->error_401();
         }else{
             $this->token = $datos['token'];
             $arrayToken =   $this->buscarToken();
             if($arrayToken){
-                if(!isset($datos['idProducto']) || !isset($datos['marca']) || !isset($datos['precio'])|| !isset($datos['existencia'])){
-                    return $_respuestas->error_400();
-                }else{
-                    $this->idProducto = $datos['idProducto'];
-                    $this->nombreProducto = $datos['nombre'];
-                    $this->marcaProducto = $datos['marca'];
-                    $this->precioProducto = $datos['precio'];
-                    $this->existenciaProducto = $datos['existencia'];
-                    
-        
-                    $resp = $this->modificarProducto();
-                    if($resp){
-                        $respuesta = $_respuestas->response;
-                        $respuesta["result"] = array(
-                            "idProducto" => $this->idProducto
-                        );
-                        return $respuesta;
-                    }else{
-                        return $_respuestas->error_500();
+                $requiredFields = array('idUsuario','nombre', 'apellido', 'password', 'estado');
+                foreach ($requiredFields as $field) {
+                    if (!isset($datos[$field])) {
+                        return $_respuestas->error_400("El campo '$field' es obligatorio");
                     }
                 }
+                $this->nombre = $datos['nombre'];
+                $this->apellido = $datos['apellido'];
+                $this->password = $this->encriptar($datos['password']);
+                $this->estado = $datos['estado'];
+                $this->idUsuario = $datos['idUsuario'];
+                    $resp = $this->modificarUsuario();
+                    if ($resp) {
+                        $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Datos almacenados correctamente');
+                        return $respuesta;
+                    } else {
+                        return $_respuestas->error_500();
+                    }
 
             }else{
                 return $_respuestas->error_401("El Token que envio es invalido o ha caducado");
@@ -191,15 +188,23 @@ class productos extends conexion {
      * @access private
      * @return array
      */
-    private function modificarProducto(){
-        $query = "UPDATE " . $this->table . " SET nombreProducto ='" . $this->nombreProducto . "',marca = '" . $this->marcaProducto . "', precio = '" . $this->precioProducto . "', existecia = '" .
-        $this->existenciaProducto . 
-         "' WHERE idProducto = '" . $this->idProducto . "'"; 
-        $resp = parent::nonQuery($query);
-        if($resp >= 1){
-             return $resp;
-        }else{
-            return 0;
+    private function modificarUsuario(){
+        $params = array(
+            //s= string , i = int
+            array('type' => 'i', 'value' => $this->idUsuario),
+            array('type' => 's', 'value' => $this->nombre),
+            array('type' => 's', 'value' => $this->apellido),
+            array('type' => 's', 'value' => $this->password),
+            array('type' => 'i', 'value' => $this->estado)
+            
+        );
+        $result = $this->executeStoredProcedure('actualizarUsuarios', $params);
+        if ($result) {
+            // echo 'El procedimiento se ejecutó correctamente.';
+            return true;
+        } else {
+            // echo 'Ocurrió un error al ejecutar el procedimiento.';
+            return false;
         }
     }
 
