@@ -226,18 +226,15 @@ class productos extends conexion {
             $arrayToken =   $this->buscarToken();
             if($arrayToken){
 
-                if(!isset($datos['idProducto'])){
+                if(!isset($datos['idUsuario'])){
                     return $_respuestas->error_400();
                 }else{
-                    $this->idProducto = $datos['idProducto'];
+                    $this->idUsuario = $datos['idUsuario'];
                     $resp = $this->eliminarProducto();
-                    if($resp){
-                        $respuesta = $_respuestas->response;
-                        $respuesta["result"] = array(
-                            "idProducto" => $this->idProducto
-                        );
+                    if ($resp) {
+                        $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Usuario eliminado con exito');
                         return $respuesta;
-                    }else{
+                    } else {
                         return $_respuestas->error_500();
                     }
                 }
@@ -259,13 +256,19 @@ class productos extends conexion {
      * @return array
      */
     private function eliminarProducto(){
-        $query = "DELETE FROM " . $this->table . " WHERE idProducto= '" . $this->idProducto . "'";
-        $resp = parent::nonQuery($query);
-        if($resp >= 1 ){
-            return $resp;
-        }else{
-            return 0;
+        $params = array(
+            // i = int
+            array('type' => 'i', 'value' => $this->idUsuario)
+        );
+        $result = $this->executeStoredProcedure('eliminarUsuario', $params);
+        if ($result) {
+            // echo 'El procedimiento se ejecutó correctamente.';
+            return true;
+        } else {
+            // echo 'Ocurrió un error al ejecutar el procedimiento.';
+            return false;
         }
+        
     }
 
     
