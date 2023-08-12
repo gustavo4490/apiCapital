@@ -3,7 +3,7 @@ require_once "conexion/conexion.php";
 require_once "respuestas.class.php";
 
 
-class productos extends conexion {
+class usuarios extends conexion {
 
     private $table = "usuarios";
     private $idUsuario = "";
@@ -51,7 +51,7 @@ class productos extends conexion {
     }
 
     /**
-     * Esta función guarda productos utilizando verbo post.
+     * Esta función guarda usuarios utilizando verbo post.
      * @var nombre
      * @var marca
      * @var precio
@@ -184,7 +184,7 @@ class productos extends conexion {
 
 
     /**
-     * Esta función ejecuta query que actualiza registros en la tabla productos
+     * Esta función ejecuta query que actualiza registros en la tabla usuarios
      * @access private
      * @return array
      */
@@ -210,8 +210,8 @@ class productos extends conexion {
 
 
      /**
-     * Esta función elimina productos por medio de ID.
-     * @var idProducto
+     * Esta función elimina usuarios por medio de ID.
+     * @var idUsuario
      * @access public
      * @return array
      */
@@ -230,7 +230,7 @@ class productos extends conexion {
                     return $_respuestas->error_400();
                 }else{
                     $this->idUsuario = $datos['idUsuario'];
-                    $resp = $this->eliminarProducto();
+                    $resp = $this->eliminarUsuario();
                     if ($resp) {
                         $respuesta = $_respuestas->ok_200_procedimientos_almacenados('Usuario eliminado con exito');
                         return $respuesta;
@@ -251,11 +251,11 @@ class productos extends conexion {
 
 
     /**
-     * Esta función ejecuta query que elimina registros en la tabla productos por el ID
+     * Esta función ejecuta query que elimina registros en la tabla usuario por el ID
      * @access private
      * @return array
      */
-    private function eliminarProducto(){
+    private function eliminarUsuario(){
         $params = array(
             // i = int
             array('type' => 'i', 'value' => $this->idUsuario)
