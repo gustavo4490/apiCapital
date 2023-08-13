@@ -1,22 +1,22 @@
 <?php
 require_once 'clases/respuestas.class.php';
-require_once 'clases/usuarios.class.php';
+require_once 'clases/categoriasIngreso.class.php';
 
 $_respuestas = new respuestas;
-$_usuarios = new usuarios;
+$_categoriasIngreso = new categoriasIngreso;
 
 
 if($_SERVER['REQUEST_METHOD'] == "GET"){
 
     if(isset($_GET["page"])){
         $pagina = $_GET["page"];
-        $listaUsuarios = $_usuarios->listaUsuarios($pagina);
+        $listaUsuarios = $_categoriasIngreso->listaCategoriasIngreso($pagina);
         header("Content-Type: application/json");
         echo json_encode($listaUsuarios);
         http_response_code(200);
     }else if(isset($_GET['id'])){
         $IdUsuario = $_GET['id'];
-        $datosUsuario = $_usuarios->obtenerusuario($IdUsuario);
+        $datosUsuario = $_categoriasIngreso->obtenerCategoriaIngreso($IdUsuario);
         header("Content-Type: application/json");
         echo json_encode($datosUsuario);
         http_response_code(200);
@@ -26,7 +26,7 @@ if($_SERVER['REQUEST_METHOD'] == "GET"){
     //recibimos los datos enviados
     $postBody = file_get_contents("php://input");
     //enviamos los datos al manejador
-    $datosArray = $_usuarios->post($postBody);
+    $datosArray = $_categoriasIngreso->post($postBody);
     //delvovemos una respuesta 
      header('Content-Type: application/json');
      if(isset($datosArray["result"]["error_id"])){
@@ -41,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == "GET"){
       //recibimos los datos enviados
       $postBody = file_get_contents("php://input");
       //enviamos datos al manejador
-      $datosArray = $_usuarios->put($postBody);
+      $datosArray = $_categoriasIngreso->put($postBody);
         //delvovemos una respuesta 
      header('Content-Type: application/json');
      if(isset($datosArray["result"]["error_id"])){
@@ -55,11 +55,11 @@ if($_SERVER['REQUEST_METHOD'] == "GET"){
 }else if($_SERVER['REQUEST_METHOD'] == "DELETE"){
 
         $headers = getallheaders();
-        if(isset($headers["token"]) && isset($headers["idUsuario"])){
+        if(isset($headers["token"]) && isset($headers["idCategoriaIngreso"])){
             //recibimos los datos enviados por el header
             $send = [
                 "token" => $headers["token"],
-                "idUsuario" =>$headers["idUsuario"]
+                "idCategoriaIngreso" =>$headers["idCategoriaIngreso"]
             ];
             $postBody = json_encode($send);
         }else{
@@ -68,7 +68,7 @@ if($_SERVER['REQUEST_METHOD'] == "GET"){
         }
         
         //enviamos datos al manejador
-        $datosArray = $_usuarios->delete($postBody);
+        $datosArray = $_categoriasIngreso->delete($postBody);
         //delvovemos una respuesta 
         header('Content-Type: application/json');
         if(isset($datosArray["result"]["error_id"])){
